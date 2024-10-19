@@ -3,3 +3,4 @@ resources:
 
 images:
   - name: ghcr.io/meysam81/click-odoo-contrib
+    newTag: main
