@@ -12,3 +12,5 @@ RUN pip install -U pip -r requirements.txt && \
     rm -rf /root/.cache /root/.local /tmp/* /var/tmp/* /var/cache/apk/* /var/cache/distfiles/* /var/cache/pip/*
 
 USER odoo:odoo
+
+CMD ["click-odoo-backupdb", "--help"]
