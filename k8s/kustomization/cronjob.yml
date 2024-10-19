@@ -1,0 +1,17 @@
+apiVersion: batch/v1
+kind: CronJob
+metadata:
+  name: odoo-backup
+spec:
+  jobTemplate:
+    metadata:
+      name: odoo-backup
+    spec:
+      template:
+        spec:
+          containers:
+            - image: ghcr.io/meysam81/click-odoo-contrib
+              name: odoo-backup
+              resources: {}
+          restartPolicy: OnFailure
+  schedule: "@daily"
