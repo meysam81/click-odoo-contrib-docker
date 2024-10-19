@@ -30,8 +30,10 @@ jobs:
       - name: Build docker
         uses: meysam81/infra/actions/build-docker@main
         with:
-          image-name: ghcr.io/meysam81/click-odoo-contrib
           image-extra-tags: ghcr.io/meysam81/click-odoo-contrib:${{ github.run_id }}
+          image-name: ghcr.io/meysam81/click-odoo-contrib
+          kubescape: "true"
+          kubescape-upload-sarif: "true"
 
   build-stable:
     if: github.event_name == 'push' && startsWith(github.ref, 'refs/tags/v')
