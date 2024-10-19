@@ -1,0 +1,55 @@
+name: ci
+
+concurrency:
+  cancel-in-progress: ${{ ! startsWith(github.ref, 'refs/tags/v') }}
+  group: ci-${{ github.ref_name }}-${{ github.event_name }}
+
+on:
+  pull_request:
+    branches:
+      - main
+  push:
+    branches:
+      - main
+    tags:
+      - v*
+
+permissions:
+  contents: read
+  packages: write
+  actions: read
+  security-events: write
+
+jobs:
+  build-edge:
+    if: |
+      contains(fromJson('["push","pull_request"]'), github.event_name) &&
+      github.ref == 'refs/heads/main'
+    runs-on: ubuntu-latest
+    steps:
+      - name: Build docker
+        uses: meysam81/infra/actions/build-docker@main
+        with:
+          image-name: ghcr.io/meysam81/click-odoo-contrib
+          image-extra-tags: ghcr.io/meysam81/click-odoo-contrib:${{ github.run_id }}
+      - uses: kubescape/github-action@main
+        continue-on-error: true
+        with:
+          image: nginx
+          format: sarif
+          outputFile: results.sarif
+          severityThreshold: critical,high
+      - name: Upload Kubescape scan results to Github Code Scanning
+        uses: github/codeql-action/upload-sarif@v2
+        with:
+          sarif_file: results.sarif
+
+  build-stable:
+    if: github.event_name == 'push' && startsWith(github.ref, 'refs/tags/v')
+    runs-on: ubuntu-latest
+    steps:
+      - name: Build docker
+        uses: meysam81/infra/actions/build-docker@main
+        with:
+          image-name: ghcr.io/meysam81/click-odoo-contrib
+          image-extra-tags: ghcr.io/meysam81/click-odoo-contrib:${{ github.ref_name }}
