@@ -27,7 +27,8 @@ jobs:
       github.ref == 'refs/heads/main'
     runs-on: ubuntu-latest
     steps:
-      - name: Build docker
+      - id: build-docker
+        name: Build docker
         uses: meysam81/infra/actions/build-docker@main
         with:
           image-name: ghcr.io/meysam81/click-odoo-contrib
@@ -35,10 +36,10 @@ jobs:
       - uses: kubescape/github-action@main
         continue-on-error: true
         with:
-          image: nginx
+          image: ghcr.io/meysam81/click-odoo-contrib@${{ steps.build-docker.outputs.digest }}
           format: sarif
           outputFile: results.sarif
-          severityThreshold: critical,high
+          severityThreshold: High,Critical
       - name: Upload Kubescape scan results to Github Code Scanning
         uses: github/codeql-action/upload-sarif@v2
         with:
